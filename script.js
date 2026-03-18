@@ -1,34 +1,54 @@
 // script.js
 
-// ==================== HEADER & MOBILE MENU ====================
-const header = document.getElementById('header');
+// ==================== MOBILE MENU & OVERLAY ====================
 const menuToggle = document.getElementById('menu-toggle');
 const navLinks = document.getElementById('nav-links');
+const overlay = document.getElementById('menu-overlay');
 
-menuToggle.addEventListener('click', () => {
-  navLinks.classList.toggle('active');
-  const spans = menuToggle.querySelectorAll('span');
-  if (navLinks.classList.contains('active')) {
+function toggleMenu(open) {
+  const isOpen = open !== undefined ? open : !navLinks.classList.contains('active');
+  
+  if (isOpen) {
+    navLinks.classList.add('active');
+    overlay.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    // Animate hamburger to X
+    const spans = menuToggle.querySelectorAll('span');
     spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
     spans[1].style.opacity = '0';
     spans[2].style.transform = 'rotate(-45deg) translate(7px, -6px)';
   } else {
-    spans[0].style.transform = 'none';
-    spans[1].style.opacity = '1';
-    spans[2].style.transform = 'none';
-  }
-});
-
-// Close menu when a link is clicked
-const links = navLinks.querySelectorAll('a');
-links.forEach(link => {
-  link.addEventListener('click', () => {
     navLinks.classList.remove('active');
+    overlay.classList.add('hidden');
+    document.body.style.overflow = '';
+    // Reset hamburger
     const spans = menuToggle.querySelectorAll('span');
     spans[0].style.transform = 'none';
     spans[1].style.opacity = '1';
     spans[2].style.transform = 'none';
-  });
+  }
+  menuToggle.setAttribute('aria-expanded', isOpen);
+}
+
+menuToggle.addEventListener('click', (e) => {
+  e.stopPropagation();
+  toggleMenu();
+});
+
+// Close menu when clicking on overlay
+overlay.addEventListener('click', () => toggleMenu(false));
+
+// Close menu when a link is clicked
+const links = navLinks.querySelectorAll('a');
+links.forEach(link => {
+  link.addEventListener('click', () => toggleMenu(false));
+});
+
+// Close menu on window resize (if going from mobile to desktop)
+window.addEventListener('resize', () => {
+  if (window.innerWidth > 768 && navLinks.classList.contains('active')) {
+    toggleMenu(false);
+  }
 });
 
 // ==================== STICKY HEADER & BACK TO TOP ====================
